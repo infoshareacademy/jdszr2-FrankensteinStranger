@@ -221,3 +221,91 @@ FROM film f
 GROUP BY f.rating, i.store_id 
 ORDER BY i.store_id, f.rating;
 
+-- Czy rating ma wpływ na to czy zakup filmu się zwraca? Information value < 0.02, słaba predykcja, nie nadaje się.
+-- ALE: dużo filmów się nie zwróciło 
+
+SELECT rating, 
+	avg(replacement_cost/rental_rate) AS po_ilu_zwrot
+FROM film
+GROUP BY rating;
+
+WITH t1 AS
+(
+SELECT f.rating, i.inventory_id, f.replacement_cost/f.rental_rate AS return_rate
+FROM inventory i
+JOIN film f
+ON f.film_id = i.film_id 
+),
+t2 AS 
+(
+SELECT count(rental_id) AS cnt_rent, inventory_id
+FROM rental 
+GROUP BY inventory_id
+),
+t3 AS 
+(
+SELECT t1.rating, t1.inventory_id,
+	CASE WHEN (t1.return_rate - t2.cnt_rent) >= 0 THEN 'niezwrocony' ELSE 'zwrocony' END AS status_zwrotu
+FROM t2 t2
+JOIN t1 t1
+ON t1.inventory_id = t2.inventory_id 
+),
+t4 AS 
+(
+SELECT t3.rating, 
+	count(r.rental_id) AS cnt,
+	count (CASE WHEN t3.status_zwrotu = 'zwrocony' THEN t3.inventory_id end) AS good,
+	count (CASE WHEN t3.status_zwrotu = 'niezwrocony' THEN t3.inventory_id end) AS bad
+FROM rental r
+JOIN t3 t3
+	ON t3.inventory_id = r.inventory_id 
+GROUP BY t3.rating
+ORDER BY t3.rating
+),
+t5 AS 
+(SELECT *, 
+	good / sum(good) over()::NUMERIC good_distr,
+	bad / sum(bad) over()::NUMERIC bad_distr
+FROM t4
+),
+
+t6 AS
+(SELECT *, 
+	ln(good_distr/bad_distr) AS WOE,	
+	(good_distr - bad_distr) AS "DG-DB",
+	((good_distr - bad_distr)*(ln(good_distr/bad_distr))) AS "WOE*(DG-DB)"
+FROM t5
+),
+
+t7 AS
+(SELECT *,
+	sum("WOE*(DG-DB)") over() AS IV
+FROM t6
+)
+
+SELECT * FROM t7
+
+-- ciekawostka: filmy, których zwrot nie był opóźniony, ale mają nadpłatę?
+
+WITH t1 AS
+(
+SELECT f.rating, r.rental_id, f.film_id, i.inventory_id, f.rental_rate, p.amount,
+	CASE WHEN p.amount - f.rental_rate > 0 THEN 'nadplata' 
+		 WHEN p.amount - f.rental_rate = 0 THEN 'oplacony 'ELSE 'nieoplacony' END AS status_platnosci, 
+	CASE WHEN f.rental_duration < date_part('day', return_date-rental_date) THEN 'opozniony' ELSE 'na_czas' end AS status_zwrotu
+FROM film f
+	JOIN inventory i 
+	ON f.film_id = i.film_id 
+	LEFT JOIN rental r
+	ON i.inventory_id = r.inventory_id
+	INNER JOIN payment p
+	ON r.rental_id = p.rental_id 
+ORDER BY f.film_id 
+)
+SELECT rating, sum(rental_rate) AS sum_rental_rate, sum(amount) AS sum_amount, (sum(amount) - sum(rental_rate)) AS amount_diff FROM t1
+WHERE status_platnosci = 'nadplata'
+AND status_zwrotu = 'na_czas'
+GROUP BY rating 
+ORDER BY rating
+
+
