@@ -18,12 +18,7 @@ GROUP BY f.film_id
 ORDER BY f.film_id
 )
 
-SELECT sum(koszt_zakupu_filmow) AS koszt_zakupu_ALL,
-	sum(p.amount) AS przychod_ALL
-FROM t1 t1
-JOIN inventory i 
-	ON t1.film_id = i.film_id 
-	LEFT JOIN rental r
-	ON i.inventory_id = r.inventory_id
-	LEFT JOIN payment p
-	ON r.rental_id = p.rental_id
+SELECT sum(koszt_zakupu_filmow) AS koszt_zakupu_ALL
+FROM t1 -- koszt zakupu filmów
+
+SELECT sum(amount) FROM payment -- wszystkie wpływy pieniężne
