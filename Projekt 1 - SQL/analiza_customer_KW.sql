@@ -24,7 +24,7 @@ FROM t1
 -- 2. między 50% a 10% filmów jest zwróconych z opóźnieniem
 -- 3. mniej niż 10% filmów jest zwróconych z opóźnieniem
 -- 4. ilość klientów, którzy choć raz nie zwrócili filmu
--- 5. ilośc klientów, dla którzy nie zwracają 5% lub więcej swoich zamówień
+-- 5. ilośc klientów, dla którzy nie zwracają 5% lub więcej swoich zamówień (ale mniej niż 10%)
 
 WITH t1 AS
 (
@@ -65,7 +65,7 @@ ORDER BY 2 DESC
 SELECT count(DISTINCT(customer_id)) AS cnt_customer,
 	count(CASE WHEN wsp_opoznionych > 0.5 THEN customer_id END) AS ponad_50proc_opoznionych,
 	count(CASE WHEN wsp_opoznionych < 0.5 AND wsp_opoznionych > 0.1 THEN customer_id END) AS miedzy_50_i_10_proc,
-	count(CASE WHEN wsp_opoznionych < 0.5 THEN customer_id END) AS mniej_niz_10_proc,
+	count(CASE WHEN wsp_opoznionych < 0.1 THEN customer_id END) AS mniej_niz_10_proc,
 	count(CASE WHEN wsp_niezwroconych > 0 THEN customer_id END) AS niezwrone,
-	count(CASE WHEN wsp_niezwroconych >= 0.05 THEN customer_id END) AS wiecej_niz_10_proc_niezwroconych
+	count(CASE WHEN wsp_niezwroconych >= 0.05 THEN customer_id END) AS wiecej_niz_5_proc_niezwroconych
 FROM t3
