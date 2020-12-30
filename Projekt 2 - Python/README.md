@@ -1,4 +1,4 @@
-# Projekt 2 – SQL
+# Projekt 2 – Python
 
 Analiza statystyczna oraz tworzenie aplikacji w Pythonie.
 
