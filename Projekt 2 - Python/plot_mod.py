@@ -166,7 +166,7 @@ def widgets_handler(country_choice, category_choice):
 #wykres z sumą energii w totalu w danym kraju (wybranym z listy)
 def plot_total():
     x = green_sum[green_sum["country_or_area"] == values["Kraj"]]
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(13, 8))
     plt.plot("year", "quantity", data=x, label = "total green energy produced by {}".format(values["Kraj"]))
     plt.plot("year", "quantity", data = mean_top_5, label = "total green energy produced by top 5 countries (mean)")
     plt.legend()
@@ -190,7 +190,7 @@ def plot_category():
         if values["Kategoria"] == key:
             print(value)
     y = green_sum_cat[kraj & kategoria]
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(13, 8))
     plt.xlim(1990, 2015)
     plt.plot("year", "quantity", data=y)
     plt.title(label = "{} in {}".format(values["Kategoria"], values["Kraj"]))
@@ -204,7 +204,7 @@ def plot_bar():
     z = z[["year", "transaction", "quantity"]]
     z_pivot = z.pivot(index = "year", columns = "transaction", values = "quantity")
     z_pivot = z_pivot.fillna(0)
-    z_pivot.plot.bar(stacked = True)
+    z_pivot.plot.bar(stacked = True,figsize=(13, 8))
     plt.title(label = "share of green energy sources in {}".format(values["Kraj"]))    
     plt.legend(title=None)
     plt.show()
@@ -217,7 +217,7 @@ def plot_bar_100():
     z = z[["year", "transaction", "quantity"]]
     z_pivot = z.pivot(index = "year", columns = "transaction", values = "quantity")
     z_pivot = z_pivot.fillna(0)
-    z_pivot.apply(lambda x: x*100/sum(x), axis=1).plot(kind="bar", stacked=True)
+    z_pivot.apply(lambda x: x*100/sum(x), axis=1).plot(kind="bar", stacked=True,figsize=(13, 8))
     plt.title(label = "share of green energy sources in {}".format(values["Kraj"]))
     plt.legend(title=None)
     plt.show()
@@ -233,7 +233,7 @@ def widget_nuc():
 #wykres z sumą energii w totalu w danym kraju (wybranym z listy)
 def plot_total_nuc():
     x = nuc_sum[nuc_sum["country_or_area"] == values_nuc["Kraj"]]
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(13, 8))
     plt.plot("year", "quantity", data=x, label = "total nuclear energy produced by {}".format(values_nuc["Kraj"]))
     plt.plot("year", "quantity", data = mean_top_5_nuc, label = "total nuclear energy produced by top 5 countries (mean)")
     plt.legend()
@@ -250,7 +250,7 @@ def widget_heat():
 #wykres z sumą energii w totalu w danym kraju (wybranym z listy)
 def plot_total_heat():
     x = heat_sum[heat_sum["country_or_area"] == values_heat["Kraj"]]
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(13, 8))
     plt.plot("year", "quantity", data=x, label = "total heat energy produced by {}".format(values_heat["Kraj"]))
     plt.plot("year", "quantity", data = mean_top_5_heat, label = "total heat energy produced by top 5 countries (mean)")
     plt.legend()
@@ -322,7 +322,7 @@ def max_min_avg_green_UE():
     plt.xlim(1990, 2014)
     plt.show()
     
-def green_top10():
+def green_top10_plot():
     list_countries = green_top10["country_or_area"].unique()
 
     n = len(list_countries) #ilość kolorów potrzebna do wykresu
@@ -414,7 +414,7 @@ def max_min_avg_heat_UE():
     plt.show()
     
     
-def heat_top10_UE():
+def heat_top10_UE_plot():
     list_countries = bad_top10["country_or_area"].unique()
 
     n = len(list_countries) #ilość kolorów potrzebna do wykresu
@@ -505,7 +505,7 @@ def max_min_avg_nuclear_UE():
     plt.xlim(1990, 2014)
     plt.show()
     
-def nuclear_top10():
+def nuclear_top10_plot():
     list_countries = nuclear_top10["country_or_area"].unique()
 
     n = len(list_countries) #ilość kolorów potrzebna do wykresu
