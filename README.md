@@ -1,2 +1,2 @@
 # jdszr2-FrankensteinStranger
-reo zespołu FrankensteinStranger (zespół nr 2)
+repo zespołu FrankensteinStranger (zespół nr 2)
